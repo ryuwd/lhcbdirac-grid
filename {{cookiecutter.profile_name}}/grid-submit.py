@@ -46,8 +46,8 @@ with tempfile.TemporaryDirectory() as jobdir:
         j.setOutputSandbox(['std.out', 'std.err', 'job_{RuleName}_{JobID}.log'])
         j.setCPUTime({CPUTime})
         j.setNumberOfProcessors({NumberOfProcessors})
-        #j.setDestination('{Destination}')
-        #j.setBannedSites('{BannedSites}')
+        if '{Destination}' != 'ANY': j.setDestination('{Destination}')
+        if len({BannedSites}) > 0: j.setBannedSites({BannedSites})
         j.setName('snakemake rule {RuleName} jobID {JobID}')
         sub_info = (DiracLHCb().submitJob(j))
         print (sub_info)
@@ -57,7 +57,7 @@ with tempfile.TemporaryDirectory() as jobdir:
             NumberOfProcessors=job_properties["threads"],
             BannedSites=repr(job_properties["resources"].get("BannedSites", [])),
             Destination=job_properties["resources"].get("Destination", "ANY"),
-            RuleName=job_properties["rulename"],
+            RuleName=job_properties["rule"],
             JobID=job_properties["jobid"],
         ))
     {% endraw %}
