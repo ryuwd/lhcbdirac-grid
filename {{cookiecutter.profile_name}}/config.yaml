@@ -1,0 +1,10 @@
+no-shared-fs: true
+default-remote-provider: XRootD
+default-remote-prefix: "root://eoslhcb.cern.ch/{{cookiecutter.storage_prefix}}"
+jobscript: "grid-jobscript.sh"
+cluster: "grid-submit.py"
+cluster-status: "grid-status.py"
+max-jobs-per-second: 1
+max-status-checks-per-second: 5
+restart-times: 5
+local-cores: 1
