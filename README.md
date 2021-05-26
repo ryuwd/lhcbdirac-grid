@@ -2,6 +2,8 @@
 
 This profile configures Snakemake to run on the LHCb DIRAC grid.
 
+N.B. this is under development and doesn't actually work yet.
+
 ## Setup
 
 ### Prerequisites
