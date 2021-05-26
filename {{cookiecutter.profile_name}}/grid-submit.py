@@ -5,7 +5,6 @@ import textwrap
 import sys
 import subprocess
 import os
-import getpass
 import json
 import shutil
 import glob
@@ -37,28 +36,30 @@ with tempfile.TemporaryDirectory() as jobdir:
     {% raw %}
     with open(jobsubpath, "w") as jobsub:
         jobsub.write(textwrap.dedent("""
-    from DIRAC.Interfaces.API.Dirac import Dirac
-    from DIRAC.Interfaces.API.Job import Job
+        # from DIRAC.Interfaces.API.Dirac import Dirac
+        # from DIRAC.Interfaces.API.Job import Job
+        from LHCbDIRAC.Interfaces.API.DiracLHCb import DiracLHCb
+        from LHCbDIRAC.Interfaces.API.LHCbJob import LHCbJob
+        j = LHCbJob()
+        j.setExecutable("/bin/bash", arguments="jobscript.sh", logFile='job_{RuleName}_{JobID}.log')
+        j.setInputSandbox(['jobscript.sh', 'grid-source.tar'])
+        j.setOutputSandbox(['std.out', 'std.err', 'job_{RuleName}_{JobID}.log'])
+        j.setCPUTime({CPUTime})
+        j.setNumberOfProcessors({NumberOfProcessors})
+        #j.setDestination('{Destination}')
+        #j.setBannedSites('{BannedSites}')
+        j.setName('snakemake rule {RuleName} jobID {JobID}')
+        sub_info = (DiracLHCb().submitJob(j))
+        print (sub_info)
 
-    j = Job()
-    j.setExecutable("/bin/bash", arguments="jobscript.sh", logFile='job_{RuleName}_{JobID}.log')
-    j.setInputSandbox(['jobscript.sh', 'grid-source.tar'])
-    j.setOutputSandbox(['std.out', 'std.err', 'job_{RuleName}_{JobID}.log'])
-    j.setCPUTime({CPUTime})
-    j.setNumberOfProcessors({NumberOfProcessors})
-    j.setDestination({Destination})
-    j.setBannedSites({BannedSites})
-    j.setName('snakemake rule {RuleName} jobID {JobID}')
-    print (Dirac().submitJob(j))
-
-    """).format(
-        CPUTime=job_properties["resources"].get("CPUTime", 240),
-        NumberOfProcessors=job_properties["threads"],
-        BannedSites=repr(job_properties["resources"].get("BannedSites", [])),
-        Destination=job_properties["resources"].get("Destination", "ANY"),
-        RuleName=job_properties["rulename"],
-        JobID=job_properties["jobid"],
-    )
+        """).format(
+            CPUTime=job_properties["resources"].get("CPUTime", 240),
+            NumberOfProcessors=job_properties["threads"],
+            BannedSites=repr(job_properties["resources"].get("BannedSites", [])),
+            Destination=job_properties["resources"].get("Destination", "ANY"),
+            RuleName=job_properties["rulename"],
+            JobID=job_properties["jobid"],
+        ))
     {% endraw %}
 
     shutil.copyfile(jobsubpath, "last-jobsub.py")
@@ -73,13 +74,17 @@ with tempfile.TemporaryDirectory() as jobdir:
     for i in range(10):
         try:
             res = subprocess.run(cmd, check=True, stdout=subprocess.PIPE)
+            if "No proxy found" in res.stdout.decode():
+                wait_for_proxy()
+                continue
             break
         except subprocess.CalledProcessError as e:
             if "No proxy found" in e.stdout.decode():
                 wait_for_proxy()
                 raise e
 
-    jobID = res.stdout.decode().strip()
+    jobInfo = json.loads(res.stdout.decode().strip())
+    jobID = jobInfo['JobID']
     os.chdir(workdir)
 
 # print jobid for use in Snakemake
