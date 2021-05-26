@@ -32,12 +32,11 @@ for i in range(STATUS_ATTEMPTS):
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            shell=True,
         )
         lines = [
             line.strip()
             for line in res.stdout.decode().split("\n")
-            if "JobID={}".format(jobid)
+            if line.startswith("JobID={}".format(jobid))
         ]
         if len(lines) == 0 or len(lines) > 1:
             print(res.stdout.decode(), file=sys.stderr)
