@@ -87,7 +87,7 @@ with tempfile.TemporaryDirectory() as jobdir:
         jobInfo = json.loads(res.stdout.decode().strip())
     except json.decoder.JSONDecodeError as e:
         print("Got bad output from lb-dirac submission script:", file=sys.stderr)
-        print(res.decode().strip(), file=sys.stderr)
+        print(res.stdout.decode().strip(), file=sys.stderr)
         raise e
     jobID = jobInfo['JobID']
     os.chdir(workdir)
