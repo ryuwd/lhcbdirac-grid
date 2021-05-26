@@ -33,7 +33,8 @@ When asked for the storage path, insert whatever shall be the place where your d
 
 ### Run workflow
 Then, you can run Snakemake with
-    snakemake --profile lhcbdirac-grid ...
+```
+snakemake --profile lhcbdirac-grid ...
+```
 
-so that jobs are submitted to the grid. 
 If a job fails, you will find the "external jobid" in the Snakemake error message.

@@ -38,6 +38,7 @@ with tempfile.TemporaryDirectory() as jobdir:
         jobsub.write(textwrap.dedent("""
         # from DIRAC.Interfaces.API.Dirac import Dirac
         # from DIRAC.Interfaces.API.Job import Job
+        import json
         from LHCbDIRAC.Interfaces.API.DiracLHCb import DiracLHCb
         from LHCbDIRAC.Interfaces.API.LHCbJob import LHCbJob
         j = LHCbJob()
@@ -50,7 +51,7 @@ with tempfile.TemporaryDirectory() as jobdir:
         if len({BannedSites}) > 0: j.setBannedSites({BannedSites})
         j.setName('snakemake rule {RuleName} jobID {JobID}')
         sub_info = (DiracLHCb().submitJob(j))
-        print (sub_info)
+        print (json.dumps(sub_info))
 
         """).format(
             CPUTime=job_properties["resources"].get("CPUTime", 240),
@@ -82,8 +83,12 @@ with tempfile.TemporaryDirectory() as jobdir:
             if "No proxy found" in e.stdout.decode():
                 wait_for_proxy()
                 raise e
-
-    jobInfo = json.loads(res.stdout.decode().strip())
+    try:
+        jobInfo = json.loads(res.stdout.decode().strip())
+    except json.decoder.JSONDecodeError as e:
+        print("Got bad output from lb-dirac submission script:", file=sys.stderr)
+        print(res.decode().strip(), file=sys.stderr)
+        raise e
     jobID = jobInfo['JobID']
     os.chdir(workdir)
 
