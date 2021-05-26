@@ -4,6 +4,7 @@ import json
 import subprocess
 import sys
 import time
+import re
 
 
 def wait_for_proxy():
@@ -19,6 +20,10 @@ STATUS_ATTEMPTS = 20
 
 jobid = sys.argv[1]
 
+status_parse = re.compile(
+    "^JobID=([0-9]+) Status=([A-Za-z]+); MinorStatus=([A-Za-z ]+); Site=(.*?);$"
+)
+
 # try to get status 10 times
 for i in range(STATUS_ATTEMPTS):
     try:
@@ -29,9 +34,24 @@ for i in range(STATUS_ATTEMPTS):
             stderr=subprocess.STDOUT,
             shell=True,
         )
-        res = json.loads(res.stdout.decode())["Value"]
-        if not res["OK"]:
-            continue
+        lines = [
+            line.strip()
+            for line in res.stdout.decode().split("\n")
+            if "JobID={}".format(jobid)
+        ]
+        if len(lines) == 0 or len(lines) > 1:
+            print(res.stdout.decode(), file=sys.stderr)
+            raise ValueError("Job not found in output, or ambiguous output.")
+
+        job_line = lines[0].split(";")
+        match = status_parse.match(
+            lines[0].strip(),
+        )
+        if match is None:
+            print(res.stdout.decode(), file=sys.stderr)
+            raise ValueError("No match to output.")
+        _, status, minorstatus, _ = match.groups()
+
         break
     except subprocess.CalledProcessError as e:
         if "No proxy found" in e.stdout.decode():
@@ -49,8 +69,6 @@ for i in range(STATUS_ATTEMPTS):
             time.sleep(5)
 
 
-status = res[jobid]["Status"]
-minorstatus = res[jobid]["MinorStatus"]
 if status == "Done" and minorstatus == "Execution Complete":
     print("success")
 elif status == "Failed":
