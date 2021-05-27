@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-
-import json
 import subprocess
 import sys
 import time
@@ -11,7 +9,7 @@ def wait_for_proxy():
     stdout = sys.stdout
     sys.stdout = sys.stderr
     input(
-        "UI proxy expired. Please create a new proxy (see README) and press ENTER to continue."
+        "Grid proxy expired. Please create a new proxy (see README) and press ENTER to continue."
     )
     sys.stdout = stdout
 
