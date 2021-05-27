@@ -14,13 +14,14 @@ So far:
 Not so far:
 
 - How do we deal with uploading input and output files to DIRAC storage, especially via snakemake's "remote files" mechanism?
-    - can we use `eoslhcb.cern.ch` XRootD backed storage?
-        - a lot simpler
+    - Can we use `eoslhcb.cern.ch` XRootD backed storage?
+        - Simpler, and `XRootD` already supported by snakemake although some fixes are needed
         - does this only work on CERN nodes? Is it possible to use xrdcp directly to/from `eoslhcb.cern.ch` on those nodes?
         - this would be limiting in that jobs could only run at CERN
 
-    - should a new `RemoteProvider` be created to upload and download files from SEs when not running in a grid job?
-
+    - Should a new `RemoteProvider` be created to upload and download files from SEs when not running in a grid job?
+        - when inside a grid job, how to map the `LFN` to the physical file location inside the job? i.e. when DIRAC resolves the `InputData` + downloads the file before starting the job.
+    
 ## Setup
 
 ### Prerequisites
