@@ -34,14 +34,18 @@ with tempfile.TemporaryDirectory() as jobdir:
     jobsubpath = os.path.join(jobdir, "dirac-jobsub.py")
 
     {% raw %}
+    lfns = ["/" + lfn for lfn in job_properties["inputs"]]
     with open(jobsubpath, "w") as jobsub:
         jobsub.write(textwrap.dedent("""
-        # from DIRAC.Interfaces.API.Dirac import Dirac
-        # from DIRAC.Interfaces.API.Job import Job
+        from DIRAC.Interfaces.API.Dirac import Dirac
+        from DIRAC.Interfaces.API.Job import Job
         import json
-        from LHCbDIRAC.Interfaces.API.DiracLHCb import DiracLHCb
-        from LHCbDIRAC.Interfaces.API.LHCbJob import LHCbJob
-        j = LHCbJob()
+        # from LHCbDIRAC.Interfaces.API.DiracLHCb import DiracLHCb
+        # from LHCbDIRAC.Interfaces.API.LHCbJob import LHCbJob
+        j = Job()
+        # we rely on snakemake to upload output to the right LFN / location
+        # j.setInputData([])
+        j.setInputData({InputData})
         j.setExecutable("/bin/bash", arguments="jobscript.sh", logFile='job_{RuleName}_{JobID}.log')
         j.setInputSandbox(['jobscript.sh', 'grid-source.tar'])
         j.setOutputSandbox(['std.out', 'std.err', 'job_{RuleName}_{JobID}.log'])
@@ -50,7 +54,7 @@ with tempfile.TemporaryDirectory() as jobdir:
         if '{Destination}' != 'ANY': j.setDestination('{Destination}')
         if len({BannedSites}) > 0: j.setBannedSites({BannedSites})
         j.setName('snakemake rule {RuleName} jobID {JobID}')
-        sub_info = (DiracLHCb().submitJob(j))
+        sub_info = (Dirac().submitJob(j))
         print (json.dumps(sub_info))
 
         """).format(
@@ -60,12 +64,21 @@ with tempfile.TemporaryDirectory() as jobdir:
             Destination=job_properties["resources"].get("Destination", "ANY"),
             RuleName=job_properties["rule"],
             JobID=job_properties["jobid"],
+            InputData=repr(
+                lfns
+            )  # LFNs to download into the job
         ))
+    jscript2 = os.path.join(jobdir, "jobscript.sh")
+    with open(jobscript, 'r') as f:
+        script = f.read().replace("[[LFNS]]", " ".join(lfns))
+        with open(jscript2, 'w') as f2:
+            f2.write(script)
+
     {% endraw %}
 
+
     shutil.copyfile(jobsubpath, "last-jobsub.py")
-    shutil.copyfile(jobscript, "last-jobscript.sh")
-    shutil.copyfile(jobscript, os.path.join(jobdir, "jobscript.sh"))
+    shutil.copyfile(jscript2, "last-jobscript.sh")
     shutil.copyfile(source, os.path.join(jobdir, "grid-source.tar"))
 
     workdir = os.getcwd()
