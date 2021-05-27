@@ -21,7 +21,10 @@ Not so far:
 
     - Should a new `RemoteProvider` be created to upload and download files from SEs when not running in a grid job?
         - when inside a grid job, how to map the `LFN` to the physical file location inside the job? i.e. when DIRAC resolves the `InputData` + downloads the file before starting the job.
-    
+
+        - To test if this would work, I created https://github.com/ryuwd/snakemake/compare/main...ryuwd:roneil/DiracRemote to support upload / download
+          of files with `lb-dirac` to/from CERN-USER storage (if uploading) or any SE if downloading. Still needs test.
+
 ## Setup
 
 ### Prerequisites
