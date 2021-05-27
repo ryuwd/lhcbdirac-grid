@@ -70,13 +70,13 @@ if status == "Done" and minorstatus == "Execution Complete":
     print("success")
 elif status == "Failed":
     print("failed")
-elif status.startswith("Done"):
-    print("failed")
 elif status == "Killed":
+    print("failed")
+elif status == "Stalled":
     print("failed")
 elif status == "Aborted":
     print("failed")
-elif status == "Cleared":
+elif status == "Deleted":
     print("failed")
 else:
     print("running")
