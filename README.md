@@ -1,4 +1,4 @@
-# LHCb DIRAC Grid
+# LHCbDIRAC Grid Snakemake Profile
 
 This profile configures Snakemake to run on the LHCb DIRAC grid.
 
