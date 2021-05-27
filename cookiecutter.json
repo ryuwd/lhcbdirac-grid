@@ -1,4 +1,4 @@
 {
     "profile_name": "lhcbdirac-grid",
-    "storage_prefix": "/eos/lhcb/user/r/roneil/smk-profile/"
+    "storage_prefix": "lhcb/user/r/roneil/snakemake/"
 }
