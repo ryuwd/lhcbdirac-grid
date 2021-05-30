@@ -13,7 +13,7 @@ echo ""
 echo "Grid storage prefix has been determined as: "
 echo "    LFN:/$GRID_STORAGE_PREFIX"
 echo ""
-echo "Is this OK? [y/n]"
+echo "Is this OK? [y/n]" #TODO y/n prompt
 
 echo ""
 
@@ -66,6 +66,7 @@ wait;
 echo "Packing relocatable environment. This can take a while."
 conda pack -p .snakemake-grid --format tar --output snakemake-grid.tar
 
+rm -rf .snakemake-grid
 
 echo "Setup run-grid script."
 cp $HOME/.config/snakemake/lhcbdirac-grid-$WORKFLOW_NAME/run-grid .
@@ -77,10 +78,10 @@ echo "To run this snakemake workflow on the Grid, please run the script ./run-gr
 echo "Some tips for a smooth run: "
 echo "   - *ALWAYS* use git version control. Ensure all files are tracked and changes committed."
 echo "   - Group small jobs together: https://snakemake.readthedocs.io/en/stable/executing/grouping.html"
-echo "   - Don't use directory inputs / outputs."
+echo "   - Don't use directory inputs / outputs." #FIXME
 echo "   - Upload any large input files to your grid storage prefix. Don't commit them to version control."
 echo "         - If any input files are already on grid storage, specify the LFNs in your input data as a "
-echo "           DiracSE remote file."
+echo "           DiracSE remote file and they will be downloaded into the job."
 echo "         - Alternatively, you can fix the Destination resource parameter e.g. to LCG.CERN.cern, and "
 echo "           use a PFN. e.g. root:// url with XRootD remote file."
 echo "   - pre-create and upload your conda environments, if you have any:"
