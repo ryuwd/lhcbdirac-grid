@@ -1,4 +1,4 @@
 {
-    "profile_name": "lhcbdirac-grid",
-    "storage_prefix": "lhcb/user/r/roneil/snakemake/"
+    "workflow_name": "unique_workflow_name",
+    "grid_storage_prefix": "lhcb/user/u/username/"
 }

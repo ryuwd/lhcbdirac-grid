@@ -1,6 +1,6 @@
 no-shared-fs: true
 default-remote-provider: DiracSE
-default-remote-prefix: "{{cookiecutter.storage_prefix}}"
+default-remote-prefix: "{{cookiecutter.grid_storage_prefix}}"
 jobscript: "grid-jobscript.sh"
 cluster: "grid-submit.py"
 cluster-status: "grid-status.py"

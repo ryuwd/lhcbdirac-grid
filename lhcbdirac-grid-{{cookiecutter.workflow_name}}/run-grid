@@ -1,0 +1,26 @@
+#!/bin/bash
+
+WORKFLOW_NAME="{{ cookiecutter.workflow_name }}"
+DEFAULT_SE="CERN-USER"
+
+if [[ $(git diff --stat) != '' ]]; then
+  echo 'run-grid: git tree is dirty - please commit your changes first.'
+  echo "run-grid: N.B. this is required since only committed changes are sent to the grid."
+  exit 1
+fi
+
+# Upload tarball if needs be
+if [ -f ".use-conda" ]; then 
+    if [ ! -f ".use-conda-prepared" ]; then
+        echo "run-grid: Creating conda environments..."
+        snakemake --conda-prefix .snakemake_envs --create-conda-envs-only -j 1
+
+        tar xf .snakemake-envs snakemake-envs.tar
+
+        lb-dirac dirac-dms-add-file LFN:/{{cookiecutter.grid_storage_prefix}}/snakemake-envs.tar snakemake-envs.tar ${DEFAULT_SE}
+
+        touch .use-conda-prepared
+    fi
+fi
+
+snakemake --profile lhcbdirac-grid-$WORKFLOW_NAME "$@"
