@@ -18,7 +18,7 @@ In progress:
         of files with `lb-dirac` to/from CERN-USER storage (if uploading) or any SE if downloading. Upload / download works fine.
     - Job submission script will ensure input files are downloaded by their LFNs into the job sandbox. Job script moves input file to a
         location where `snakemake` picks it up.
-    - Snakemake is LFN-aware and uploads the file from the sandbox to grid storage at the end of the job.
+    - Snakemake is LFN-aware and uploads output files from the sandbox to grid storage at the end of the job.
 
 - Conda environments with `--use-conda`.
 
